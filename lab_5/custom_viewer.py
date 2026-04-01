@@ -30,7 +30,6 @@ except ImportError:
 
 
 DATA_DIR = Path(__file__).parent / "data"
-ALT_DATA_DIR = DATA_DIR / "images"
 FALLBACK_RGB = (30, 20, 10)
 
 
@@ -187,9 +186,12 @@ class HyperspectralViewer:
         bar = tk.Frame(self.root, bg=self.PANEL, bd=0, padx=6, pady=6)
         bar.pack(side=tk.TOP, fill=tk.X)
 
-        self._make_action_button(bar, "Open File...", self._open_file).pack(side=tk.LEFT, padx=4)
-        self._make_action_button(bar, "Export CSV...", self._export_csv).pack(side=tk.LEFT, padx=4)
-        self._make_action_button(bar, "Export PNG...", self._export_signature_png).pack(
+        self._make_action_button(bar, "Open File", self._open_file).pack(side=tk.LEFT, padx=4)
+        self._make_action_button(bar, "Export CSV", self._export_csv).pack(side=tk.LEFT, padx=4)
+        self._make_action_button(bar, "Export CSV Fast", self._export_csv_fast).pack(
+            side=tk.LEFT, padx=4
+        )
+        self._make_action_button(bar, "Export PNG", self._export_signature_png).pack(
             side=tk.LEFT, padx=4
         )
 
@@ -260,9 +262,7 @@ class HyperspectralViewer:
             self._load(Path(sys.argv[1]))
             return
 
-        hdrs = find_hdr_files(ALT_DATA_DIR)
-        if not hdrs:
-            hdrs = find_hdr_files(DATA_DIR)
+        hdrs = find_hdr_files(DATA_DIR)
 
         if len(hdrs) == 1:
             self._load(hdrs[0])
@@ -274,10 +274,9 @@ class HyperspectralViewer:
         self.status_var.set("No .hdr found automatically. Click 'Open file...' to import a dataset.")
 
     def _open_file(self):
-        preferred_dir = ALT_DATA_DIR if ALT_DATA_DIR.exists() else DATA_DIR
         path = filedialog.askopenfilename(
             title="Open ENVI header (.hdr)",
-            initialdir=preferred_dir if preferred_dir.exists() else Path.home(),
+            initialdir=DATA_DIR if DATA_DIR.exists() else Path.home(),
             filetypes=[("ENVI header", "*.hdr"), ("All files", "*.*")],
         )
         if path:
@@ -392,6 +391,28 @@ class HyperspectralViewer:
                 writer.writerow([float(xi), "" if np.isnan(vi) else float(vi)])
 
         self.status_var.set(f"CSV saved: {path}")
+
+    def _export_csv_fast(self):
+        if self.spectrum is None or self.pixel_pos is None:
+            messagebox.showinfo("Nothing to export", "Click on a pixel first.")
+            return
+
+        row, col = self.pixel_pos
+        x = self._spectrum_x()
+        header = "wavelength_nm" if self.wavelengths is not None else "band"
+        export_dir = Path(__file__).parent / "export"
+        export_dir.mkdir(parents=True, exist_ok=True)
+
+        dataset_name = self.current_file.stem if self.current_file is not None else "dataset"
+        path = export_dir / f"{dataset_name}_signature_r{row}_c{col}.csv"
+
+        with open(path, "w", newline="", encoding="utf-8") as f:
+            writer = csv.writer(f)
+            writer.writerow([header, "value"])
+            for xi, vi in zip(x, self.spectrum):
+                writer.writerow([float(xi), "" if np.isnan(vi) else float(vi)])
+
+        self.status_var.set(f"CSV fast saved: {path}")
 
     def _export_signature_png(self):
         if self.spectrum is None or self.pixel_pos is None:
