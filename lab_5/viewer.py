@@ -36,7 +36,7 @@ except ImportError:
 # ── Configuration ─────────────────────────────────────────────────────────────
 
 # Default search directory (relative to this script)
-DATA_DIR = Path(__file__).parent / "data" / "images"
+DATA_DIR = Path(__file__).parent / "data"
 
 # Fallback RGB band indices (0-based) when the header has no default_bands
 FALLBACK_RGB = (30, 20, 10)
