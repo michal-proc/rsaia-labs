@@ -314,11 +314,11 @@ class HyperspectralViewer:
             "Use 'Export spectrum to CSV…' to save."
         )
 
-    # ── CSV export ────────────────────────────────────────────────────────────
+    # ── CSV dataset ────────────────────────────────────────────────────────────
 
     def _export_csv(self):
         if self.spectrum is None:
-            messagebox.showinfo("Nothing to export", "Click on a pixel first.")
+            messagebox.showinfo("Nothing to dataset", "Click on a pixel first.")
             return
 
         row, col = self.pixel_pos

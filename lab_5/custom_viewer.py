@@ -30,6 +30,7 @@ except ImportError:
 
 
 DATA_DIR = Path(__file__).parent / "data"
+EXPORT_PATH = Path(__file__).parent / "dataset" / "water"
 FALLBACK_RGB = (30, 20, 10)
 
 
@@ -358,7 +359,7 @@ class HyperspectralViewer:
         self.pixel_pos = (row, col)
         self.spectrum = read_spectrum(self.img, row, col, self.ignore_value)
         self._refresh_plots()
-        self.status_var.set(f"Pixel ({row}, {col}) selected. Use CSV/PNG export if needed.")
+        self.status_var.set(f"Pixel ({row}, {col}) selected. Use CSV/PNG dataset if needed.")
 
     def _spectrum_x(self) -> np.ndarray:
         if self.spectrum is None:
@@ -369,7 +370,7 @@ class HyperspectralViewer:
 
     def _export_csv(self):
         if self.spectrum is None or self.pixel_pos is None:
-            messagebox.showinfo("Nothing to export", "Click on a pixel first.")
+            messagebox.showinfo("Nothing to dataset", "Click on a pixel first.")
             return
 
         row, col = self.pixel_pos
@@ -394,13 +395,13 @@ class HyperspectralViewer:
 
     def _export_csv_fast(self):
         if self.spectrum is None or self.pixel_pos is None:
-            messagebox.showinfo("Nothing to export", "Click on a pixel first.")
+            messagebox.showinfo("Nothing to dataset", "Click on a pixel first.")
             return
 
         row, col = self.pixel_pos
         x = self._spectrum_x()
         header = "wavelength_nm" if self.wavelengths is not None else "band"
-        export_dir = Path(__file__).parent / "export"
+        export_dir = EXPORT_PATH
         export_dir.mkdir(parents=True, exist_ok=True)
 
         dataset_name = self.current_file.stem if self.current_file is not None else "dataset"
@@ -416,7 +417,7 @@ class HyperspectralViewer:
 
     def _export_signature_png(self):
         if self.spectrum is None or self.pixel_pos is None:
-            messagebox.showinfo("Nothing to export", "Click on a pixel first.")
+            messagebox.showinfo("Nothing to dataset", "Click on a pixel first.")
             return
 
         row, col = self.pixel_pos
