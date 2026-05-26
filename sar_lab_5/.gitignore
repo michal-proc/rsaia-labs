@@ -1,0 +1,6 @@
+data/commercial_cog/*
+data/commercial_cog_subset/*
+!data/commercial_cog/.gitkeep
+!data/commercial_cog_subset/.gitkeep
+.ipynb_checkpoints/
+__pycache__/
